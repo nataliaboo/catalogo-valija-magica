@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Ropa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --bg:#faf8f5;
+    --ink:#1f1c1a;
+    --muted:#6b6459;
+    --accent:#b5502f;
+    --card:#ffffff;
+    --border:#e8e2d9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  header{
+    background:#1f1c1a;
+    color:#fff;
+    padding:36px 20px 30px;
+    text-align:center;
+  }
+  header h1{
+    margin:0 0 6px;
+    font-size:28px;
+    letter-spacing:.3px;
+  }
+  header p{
+    margin:0;
+    color:#cfc8bd;
+    font-size:14px;
+  }
+  .status-bar{
+    max-width:1100px;
+    margin:0 auto;
+    padding:10px 20px;
+    font-size:12px;
+    color:var(--muted);
+    text-align:center;
+  }
+  .filters{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 20px 10px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .filters button{
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--ink);
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .filters button.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:10px 20px 60px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:20px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+  }
+  .photo-wrap{
+    position:relative;
+    background:#f1ede7;
+    aspect-ratio:4/5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .photo-wrap img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .badge{
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:var(--accent);
+    color:#fff;
+    font-size:11px;
+    padding:4px 9px;
+    border-radius:20px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+  .sold-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(255,255,255,.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .sold-overlay span{
+    background:#1f1c1a;
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:1px;
+    padding:6px 16px;
+    border-radius:4px;
+    transform:rotate(-8deg);
+  }
+  .info{
+    padding:14px 14px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    flex:1;
+  }
+  .info h3{
+    margin:0;
+    font-size:15px;
+    font-weight:600;
+  }
+  .info .meta{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .info .desc{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+    line-height:1.4;
+    flex:1;
+  }
+  .price-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:10px;
+  }
+  .price{
+    font-size:19px;
+    font-weight:700;
+    color:var(--accent);
+  }
+  .price.sold{
+    color:var(--muted);
+    text-decoration:line-through;
+    font-size:15px;
+  }
+  .card.is-sold .photo-wrap img{
+    filter:grayscale(.3);
+  }
+  .empty, .error{
+    text-align:center;
+    color:var(--muted);
+    padding:60px 20px;
+  }
+  footer{
+    text-align:center;
+    padding:20px;
+    font-size:12px;
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Catálogo de Ropa</h1>
+  <p>Prendas en excelente estado · Actualizado automáticamente</p>
+</header>
+
+<div class="filters" id="filters"></div>
+<div class="status-bar" id="statusBar"></div>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  Consultas y coordinación de entrega por el medio de contacto habitual.
+</footer>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN
+   Pegar acá la URL del CSV publicado del Google Sheet.
+   Archivo > Compartir > Publicar en la web > elegir la hoja >
+   formato "Valores separados por comas (.csv)" > Publicar.
+   Ejemplo de URL resultante:
+   https://docs.google.com/spreadsheets/d/e/XXXXX/pub?output=csv
+   ============================================================ */
+const SHEET_CSV_URL = ""; // <-- reemplazar por la URL publicada
+
+// Datos de ejemplo (se usan si SHEET_CSV_URL está vacío o falla la carga)
+const DEMO_DATA = [
+  {id:"1", nombre:"Jogger Infantil Estampado", categoria:"Infantil", talle:"8 años", precio:"4500", estado:"disponible", descripcion:"Jogger de algodón rosa con estampa. Muy buen estado.", foto:"images/item1.jpg"},
+  {id:"2", nombre:"Jogger Deportivo Camuflado", categoria:"Deportivo", talle:"10 años", precio:"6000", estado:"disponible", descripcion:"Jogger deportivo estampado camuflado con detalles laterales. Uso moderado.", foto:"images/item2.jpg"},
+  {id:"3", nombre:"Pantalón Cargo Wide Leg", categoria:"Cargo", talle:"S", precio:"7000", estado:"vendido", descripcion:"Pantalón cargo gris con bolsillos laterales y tiro amplio.", foto:"images/item3.jpg"},
+  {id:"4", nombre:"Jogger Deportivo", categoria:"Deportivo", talle:"12 años", precio:"5500", estado:"disponible", descripcion:"Jogger verde con detalles laterales. Excelente estado.", foto:"images/item4.jpg"},
+  {id:"5", nombre:"Lote Remeras Deportivas (x2)", categoria:"Deportivo", talle:"10 años", precio:"3500", estado:"disponible", descripcion:"Dos remeras/buzos deportivos de manga corta y larga. Se venden juntas.", foto:"images/item5.jpg"},
+  {id:"6", nombre:"Pantalón Wide Leg Rayado", categoria:"Wide Leg", talle:"M", precio:"6500", estado:"disponible", descripcion:"Pantalón a rayas blanco y negro, tiro alto, calce amplio.", foto:"images/item6.jpg"}
+];
+
+let ALL_ITEMS = [];
+let activeCategory = "Todos";
+
+function formatPrice(p){
+  const n = parseFloat(p);
+  if(isNaN(n)) return p;
+  return "$" + n.toLocaleString("es-AR");
+}
+
+function normalizeRow(row){
+  return {
+    id: row.id || "",
+    nombre: row.nombre || "Sin nombre",
+    categoria: row.categoria || "Otros",
+    talle: row.talle || "-",
+    precio: row.precio || "",
+    estado: (row.estado || "disponible").trim().toLowerCase(),
+    descripcion: row.descripcion || "",
+    foto: row.foto || ""
+  };
+}
+
+function render(){
+  const grid = document.getElementById("grid");
+  const items = activeCategory === "Todos"
+    ? ALL_ITEMS
+    : ALL_ITEMS.filter(i => i.categoria === activeCategory);
+
+  if(items.length === 0){
+    grid.innerHTML = '<div class="empty">No hay prendas en esta categoría por ahora.</div>';
+    return;
+  }
+
+  grid.innerHTML = items.map(item => {
+    const sold = item.estado === "vendido";
+    return `
+      <div class="card ${sold ? "is-sold" : ""}">
+        <div class="photo-wrap">
+          ${item.categoria ? `<span class="badge">${item.categoria}</span>` : ""}
+          <img src="${item.foto}" alt="${item.nombre}" loading="lazy" onerror="this.style.opacity=0.15">
+          ${sold ? '<div class="sold-overlay"><span>VENDIDO</span></div>' : ""}
+        </div>
+        <div class="info">
+          <h3>${item.nombre}</h3>
+          <div class="meta">Talle: ${item.talle}</div>
+          <div class="desc">${item.descripcion}</div>
+          <div class="price-row">
+            <span class="price ${sold ? "sold" : ""}">${formatPrice(item.precio)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderFilters(){
+  const cats = ["Todos", ...new Set(ALL_ITEMS.map(i => i.categoria))];
+  const filtersEl = document.getElementById("filters");
+  filtersEl.innerHTML = cats.map(c =>
+    `<button data-cat="${c}" class="${c === activeCategory ? "active" : ""}">${c}</button>`
+  ).join("");
+  filtersEl.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.cat;
+      renderFilters();
+      render();
+    });
+  });
+}
+
+function setStatus(msg){
+  document.getElementById("statusBar").textContent = msg;
+}
+
+function loadFromDemo(reason){
+  ALL_ITEMS = DEMO_DATA.map(normalizeRow);
+  renderFilters();
+  render();
+  setStatus(reason + " — mostrando catálogo de ejemplo.");
+}
+
+function init(){
+  if(!SHEET_CSV_URL){
+    loadFromDemo("No hay una hoja de Google Sheets conectada todavía");
+    return;
+  }
+  setStatus("Cargando catálogo...");
+  Papa.parse(SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results){
+      if(!results.data || results.data.length === 0){
+        loadFromDemo("La hoja está vacía o no se pudo leer");
+        return;
+      }
+      ALL_ITEMS = results.data.map(normalizeRow);
+      activeCategory = "Todos";
+      renderFilters();
+      render();
+      setStatus("Catálogo actualizado desde Google Sheets · " + new Date().toLocaleString("es-AR"));
+    },
+    error: function(){
+      loadFromDemo("No se pudo conectar con la hoja");
+    }
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>

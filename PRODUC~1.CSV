@@ -1,0 +1,7 @@
+id,nombre,categoria,talle,precio,estado,descripcion,foto
+1,Jogger Infantil Estampado,Infantil,8 años,4500,disponible,Jogger de algodón rosa con estampa. Muy buen estado.,images/item1.jpg
+2,Jogger Deportivo Camuflado,Deportivo,10 años,6000,disponible,Jogger deportivo estampado camuflado con detalles laterales. Uso moderado.,images/item2.jpg
+3,Pantalón Cargo Wide Leg,Cargo,S,7000,vendido,Pantalón cargo gris con bolsillos laterales y tiro amplio.,images/item3.jpg
+4,Jogger Deportivo,Deportivo,12 años,5500,disponible,Jogger verde con detalles laterales. Excelente estado.,images/item4.jpg
+5,Lote Remeras Deportivas (x2),Deportivo,10 años,3500,disponible,Dos remeras/buzos deportivos de manga corta y larga. Se venden juntas.,images/item5.jpg
+6,Pantalón Wide Leg Rayado,Wide Leg,M,6500,disponible,"Pantalón a rayas blanco y negro, tiro alto, calce amplio.",images/item6.jpg
