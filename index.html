@@ -317,7 +317,11 @@ function init(){
     return;
   }
   setStatus("Cargando catálogo...");
-  Papa.parse(SHEET_CSV_URL, {
+  // Se agrega un parámetro único para evitar que el navegador
+  // sirva una respuesta vieja cacheada del CSV publicado.
+  const sep = SHEET_CSV_URL.includes("?") ? "&" : "?";
+  const bustedUrl = SHEET_CSV_URL + sep + "_=" + Date.now();
+  Papa.parse(bustedUrl, {
     download: true,
     header: true,
     skipEmptyLines: true,
