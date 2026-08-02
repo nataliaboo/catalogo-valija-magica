@@ -301,7 +301,8 @@ function render(){
           <div class="meta">Talle: ${item.talle}</div>
           <div class="desc">${item.descripcion}</div>
           <div class="price-row">
-            <span class="price ${sold ? "sold" : ""}">${formatPrice(item.precio)}</span>
+           <span class="price ${sold ? "sold" : ""}">${formatPrice(item.precio)}</span>
+  ${sold ? "" : `<a class="whatsapp-btn" href="${buildWhatsAppLink(item)}" target="_blank" rel="noopener" aria-label="Consultar por WhatsApp">${WHATSAPP_ICON}</a>`}
           </div>
         </div>
       </div>
