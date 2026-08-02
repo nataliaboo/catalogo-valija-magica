@@ -22,21 +22,33 @@
     color:var(--ink);
   }
   header{
-    background:#1f1c1a;
-    color:#fff;
-    padding:36px 20px 30px;
-    text-align:center;
-  }
-  header h1{
-    margin:0 0 6px;
-    font-size:28px;
-    letter-spacing:.3px;
-  }
-  header p{
-    margin:0;
-    color:#cfc8bd;
-    font-size:14px;
-  }
+  background:var(--bg);
+  color:var(--ink);
+  padding:28px 20px 20px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+header .logo{
+  display:block;
+  margin:0 auto 10px;
+  max-width:220px;
+  width:100%;
+  height:auto;
+  border-radius:20px;
+}
+header .sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+}
+header p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
   .status-bar{
     max-width:1100px;
     margin:0 auto;
@@ -209,8 +221,9 @@
 <body>
 
 <header>
-  <h1>La Valija Mágica - Catálogo de Ropa</h1>
-  <p>Prendas y Calzados en excelente estado · Contactame por Whatsapp</p>
+  <h1 class="sr-only">La Valija Mágica</h1>
+  <img class="logo" src="logo.png" alt="La Valija Mágica - Ropa de niños en excelente estado y de diseño">
+  <p>Catálogo actualizado automáticamente</p>
 </header>
 
 <div class="filters" id="filters"></div>
