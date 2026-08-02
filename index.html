@@ -235,6 +235,15 @@
    ============================================================ */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS88wNsTeAFzS9L58OumSnIWz8tiviUj_kixZ3W_mJNN3nZVPtHxv__tnwshjVEf4OA9m673_yf-jg1/pub?output=csv"; // <-- reemplazar por la URL publicada
 
+  // Número de WhatsApp en formato internacional: 54 9 + código de área + número (sin el 15)
+const WHATSAPP_NUMBER = "5491141568137";
+
+const WHATSAPP_ICON = `<svg viewBox="0 0 32 32" width="18" height="18" fill="#fff"><path d="M16.004 3C9.383 3 4 8.373 4 14.982c0 2.37.7 4.58 1.902 6.43L4 29l7.77-1.874a13.03 13.03 0 0 0 4.234.706C22.626 27.832 28 22.46 28 15.85 28 9.24 22.626 3 16.004 3zm7.53 18.53c-.317.892-1.57 1.633-2.57 1.845-.686.144-1.582.26-4.6-.986-3.864-1.6-6.354-5.522-6.548-5.78-.192-.257-1.573-2.093-1.573-3.994 0-1.9.997-2.833 1.35-3.222.353-.39.77-.487 1.027-.487.257 0 .514.003.738.014.237.012.554-.09.867.66.32.77 1.09 2.66 1.187 2.854.096.192.16.418.032.674-.128.257-.192.418-.385.643-.192.225-.406.502-.58.674-.192.192-.393.4-.17.786.225.386.997 1.645 2.14 2.664 1.472 1.312 2.713 1.72 3.1 1.912.386.192.611.16.836-.096.225-.257.964-1.123 1.222-1.51.257-.386.514-.322.867-.193.353.13 2.24 1.058 2.624 1.25.385.193.642.29.738.45.096.16.096.93-.222 1.822z"/></svg>`;
+
+function buildWhatsAppLink(item){
+  const msg = `Hola! Me interesa "${item.nombre}" (${formatPrice(item.precio)}) de La Valija Mágica.`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+}
 // Datos de ejemplo (se usan si SHEET_CSV_URL está vacío o falla la carga)
 const DEMO_DATA = [
   {id:"1", nombre:"Jogger Infantil Estampado", categoria:"Infantil", talle:"8 años", precio:"4500", estado:"disponible", descripcion:"Jogger de algodón rosa con estampa. Muy buen estado.", foto:"item1.jpg"},
