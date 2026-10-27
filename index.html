@@ -270,6 +270,16 @@ const DEMO_DATA = [
 let ALL_ITEMS = [];
 let activeCategory = "Todos";
 
+  function isNuevo(c){
+  return (c || "").trim().toLowerCase() === "nuevo";
+}
+  
+
+function pickDefaultCategory(){
+  const nuevo = ALL_ITEMS.find(i => isNuevo(i.categoria));
+  return nuevo ? nuevo.categoria : "Todos";
+}
+  
 function formatPrice(p){
   const n = parseFloat(p);
   if(isNaN(n)) return p;
@@ -324,7 +334,8 @@ function render(){
 }
 
 function renderFilters(){
-  const cats = ["Todos", ...new Set(ALL_ITEMS.map(i => i.categoria))];
+  const base = [...new Set(ALL_ITEMS.map(i => i.categoria))];
+const cats = [...base.filter(isNuevo), ...base.filter(c => !isNuevo(c)), "Todos"];
   const filtersEl = document.getElementById("filters");
   filtersEl.innerHTML = cats.map(c =>
     `<button data-cat="${c}" class="${c === activeCategory ? "active" : ""}">${c}</button>`
@@ -344,6 +355,7 @@ function setStatus(msg){
 
 function loadFromDemo(reason){
   ALL_ITEMS = DEMO_DATA.map(normalizeRow);
+  activeCategory = pickDefaultCategory();
   renderFilters();
   render();
   setStatus(reason + " — mostrando catálogo de ejemplo.");
@@ -369,7 +381,7 @@ function init(){
         return;
       }
       ALL_ITEMS = results.data.map(normalizeRow);
-      activeCategory = "Todas las Categorías";
+      activeCategory = pickDefaultCategory();
       renderFilters();
       render();
       setStatus("Catálogo actualizado desde Google Sheets · " + new Date().toLocaleString("es-AR"));
